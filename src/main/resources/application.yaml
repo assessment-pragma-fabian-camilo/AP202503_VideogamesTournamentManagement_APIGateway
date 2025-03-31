@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: api-gateway
+server:
+  port: 8080
+eureka:
+  client:
+    service-url:
+      default-zone: http://localhost:8761/eureka
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance-id:${random.value}}
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      service1CircuitBreaker:
+        failureRateThreshold: 50  # Se activa si más del 50% de solicitudes fallan
+        slowCallRateThreshold: 50 # Se activa si más del 50% de llamadas son lentas
+        slowCallDurationThreshold: 5000ms # Límite para considerar un request como lento
+        waitDurationInOpenState: 10000ms  # Tiempo que espera antes de probar de nuevo
+        permittedNumberOfCallsInHalfOpenState: 2
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        recordExceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - java.util.concurrent.TimeoutException
+          - java.io.IOException
